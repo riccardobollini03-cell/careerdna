@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         '  var v=s.querySelector("video");',
         '  var snd=document.getElementById("cdna-sound");',
         '  if(v){v.muted=true;var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});}',
-        '  function unmute(){if(!v)return;v.muted=false;v.volume=1;var p2=v.play();if(p2&&p2.catch)p2.catch(function(){});if(snd)snd.classList.add("cdna-hide-btn");}',
+        '  function unmute(){if(!v)return;v.muted=false;v.volume=1;try{v.currentTime=0;}catch(e){}var p2=v.play();if(p2&&p2.catch)p2.catch(function(){});if(snd)snd.classList.add("cdna-hide-btn");}',
         '  function remute(){if(!v)return;v.muted=true;if(snd){snd.classList.remove("cdna-hide-btn");snd.innerHTML="🔊 Tap for sound";}}',
         '  if(snd)snd.addEventListener("click",function(e){e.stopPropagation();if(v&&v.muted){unmute();}else{remute();}});',
         '  if(v)v.addEventListener("click",function(){if(v.muted)unmute();});',
