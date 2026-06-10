@@ -141,6 +141,54 @@ document.addEventListener('DOMContentLoaded', async function() {
     // createElement so they execute, awaiting onload for src scripts to
     // preserve ordering (React before ReactDOM before Babel before text/babel).
     const doc = new DOMParser().parseFromString(template, 'text/html');
+
+    // --- CareerDNA splash screen + logo intro (injected) ---
+    try {
+      const SPLASH_HTML = `
+<style id="cdna-splash-style">
+  #cdna-splash{position:fixed;inset:0;background:#000;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s ease;}
+  #cdna-splash.cdna-hide{opacity:0;}
+  #cdna-splash .cdna-video{position:relative;width:min(92vw,384px);max-height:88vh;aspect-ratio:9/16;background:#000;border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6);}
+  #cdna-splash .cdna-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  #cdna-skip{margin-top:28px;padding:13px 30px;font:600 15px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.02em;color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.35);border-radius:999px;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:all .25s ease;}
+  #cdna-skip:hover{background:rgba(255,255,255,.18);border-color:#fff;transform:translateY(-1px);}
+  #cdna-logo-intro{position:fixed;inset:0;z-index:2147482000;display:flex;align-items:center;justify-content:center;background:#0c0c13;opacity:0;pointer-events:none;}
+  #cdna-logo-intro.cdna-play{animation:cdnaBg 2.6s ease forwards;}
+  #cdna-logo-intro .cdna-brand{font:800 clamp(38px,11vw,104px)/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:-.02em;background:linear-gradient(90deg,#2dd4bf,#a78bfa,#ec4899);-webkit-background-clip:text;background-clip:text;color:transparent;opacity:0;transform:scale(.6);}
+  #cdna-logo-intro.cdna-play .cdna-brand{animation:cdnaZoom 2.6s cubic-bezier(.2,.7,.2,1) forwards;}
+  @keyframes cdnaZoom{0%{transform:scale(.6);opacity:0;}22%{opacity:1;}68%{opacity:1;transform:scale(1.18);}100%{transform:scale(1.55);opacity:0;}}
+  @keyframes cdnaBg{0%{opacity:1;}82%{opacity:1;}100%{opacity:0;}}
+</style>
+<div id="cdna-splash">
+  <div class="cdna-video">
+    <iframe src="https://www.youtube.com/embed/KMhJdck3nH8?autoplay=1&mute=1&controls=0&loop=1&playlist=KMhJdck3nH8&playsinline=1&modestbranding=1&rel=0&showinfo=0" title="CareerDNA" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+  </div>
+  <button id="cdna-skip" type="button">Access the website</button>
+</div>
+<div id="cdna-logo-intro"><div class="cdna-brand">CareerDNA</div></div>`;
+      doc.body.insertAdjacentHTML('afterbegin', SPLASH_HTML);
+      const cdnaCtl = doc.createElement('script');
+      cdnaCtl.textContent = [
+        '(function(){',
+        '  var s=document.getElementById("cdna-splash");',
+        '  var i=document.getElementById("cdna-logo-intro");',
+        '  var b=document.getElementById("cdna-skip");',
+        '  if(!s||!b)return;',
+        '  var done=false;',
+        '  function exit(){',
+        '    if(done)return;done=true;',
+        '    s.classList.add("cdna-hide");',
+        '    if(i)i.classList.add("cdna-play");',
+        '    setTimeout(function(){if(s&&s.parentNode)s.parentNode.removeChild(s);},850);',
+        '    if(i)setTimeout(function(){if(i&&i.parentNode)i.parentNode.removeChild(i);},3500);',
+        '  }',
+        '  b.addEventListener("click",exit);',
+        '})();'
+      ].join("\n");
+      doc.body.appendChild(cdnaCtl);
+    } catch (e) { console.error("splash inject failed", e); }
+    // --- end splash injection ---
+
     document.documentElement.replaceWith(doc.documentElement);
     const dead = Array.from(document.scripts);
     for (const old of dead) {
